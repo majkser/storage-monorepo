@@ -1,0 +1,43 @@
+CREATE TABLE users(
+    id VARCHAR(36) DEFAULT (UUID()) PRIMARY KEY,
+    googleId VARCHAR(255) NOT NULL,
+    username VARCHAR(255) NOT NULL,
+    usersurname VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    photo VARCHAR(255),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE files (
+    id VARCHAR(36) DEFAULT (UUID()) PRIMARY KEY,
+    filename VARCHAR(255) NOT NULL,
+    originalName VARCHAR(255) NOT NULL,
+    filePath VARCHAR(512) NOT NULL,
+    size BIGINT NOT NULL,
+    mimetype VARCHAR(100) NOT NULL,
+    userId VARCHAR(36),
+    parentFolderId VARCHAR(36), 
+    isPublic BOOLEAN NOT NULL DEFAULT FALSE,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP NULL DEFAULT NULL,
+    
+    FOREIGN KEY (userId) REFERENCES users(id)
+);
+
+CREATE TABLE links (
+    id VARCHAR(36) DEFAULT (UUID()) PRIMARY KEY, 
+    token VARCHAR(255) NOT NULL UNIQUE,
+    fileId VARCHAR(36) NOT NULL, 
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (fileId) REFERENCES files(id)
+);
+
+CREATE TABLE fileAccess (
+    fileId VARCHAR(36) NOT NULL, 
+    userId VARCHAR(36) NOT NULL,
+    PRIMARY KEY (fileId, userId),
+    
+    FOREIGN KEY (fileId) REFERENCES files(id),
+    FOREIGN KEY (userId) REFERENCES users(id)
+);
