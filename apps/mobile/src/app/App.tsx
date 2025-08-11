@@ -59,7 +59,7 @@ export const App = () => {
                   />
                 </Svg>
                 <Text style={[styles.textLg, styles.heroTitleText]}>
-                  You're up and running
+                  Youre up and running
                 </Text>
               </View>
               <TouchableOpacity
@@ -72,7 +72,7 @@ export const App = () => {
                 }}
               >
                 <Text style={[styles.textMd, styles.textCenter]}>
-                  What's next?
+                  Whats next?
                 </Text>
               </TouchableOpacity>
             </View>
