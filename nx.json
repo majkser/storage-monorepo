@@ -65,5 +65,12 @@
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
     }
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "options": {
+        "useDaemonProcess": true
+      }
+    }
   }
 }
