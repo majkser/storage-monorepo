@@ -9,7 +9,10 @@ import fileRoutes from './routes/file.routes';
 import authRoutes from './routes/authRoutes';
 import linkRoutes from './routes/linkRoutes';
 import fileAccessRoutes from './routes/fileAccessRoutes';
-import { getUserIdByEmail } from './controllers/userController';
+import {
+  changeUserAdminStatus,
+  getUserIdByEmail,
+} from './controllers/userController';
 
 dotenv.config();
 
@@ -80,6 +83,27 @@ app.get('/api/user/email/:email', async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Error retrieving user ID' });
   }
 });
+
+app.patch(
+  '/api/user/change-admin-status',
+  async (req: Request, res: Response) => {
+    const email: string = req.body.email;
+    const changeAdminStatusTo: boolean = req.body.changeAdminStatusTo;
+
+    console.log(`Changing admin status for ${email} to ${changeAdminStatusTo}`);
+
+    // TODO: extract this !!!
+
+    try {
+      await changeUserAdminStatus(email, changeAdminStatusTo);
+      res.sendStatus(204);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: 'Error changing admin status', error: error.message });
+    }
+  }
+);
 
 app.use('/api/auth', authRoutes);
 

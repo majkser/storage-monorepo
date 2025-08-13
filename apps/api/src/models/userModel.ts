@@ -81,3 +81,18 @@ export async function getUserById(id: string): Promise<User | null> {
     connection.release();
   }
 }
+
+export async function updateAdminPrivileges(
+  userId: string,
+  isAdmin: boolean
+): Promise<void> {
+  const connection = await dbConnection.getConnection();
+  try {
+    await connection.execute('UPDATE users SET isAdmin = ? WHERE id = ?', [
+      isAdmin,
+      userId,
+    ]);
+  } finally {
+    connection.release();
+  }
+}
