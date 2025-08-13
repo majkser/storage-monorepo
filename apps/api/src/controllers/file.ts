@@ -1,14 +1,14 @@
-import { Request, Response } from "express";
-import { File } from "../models/file.model";
-import fs from "fs";
+import { Request, Response } from 'express';
+import { File } from '../models/file.model';
+import fs from 'fs';
 import {
   createFile,
   findById,
   findAllFiles,
   findByUserAccess,
   deleteFile,
-} from "../models/file.model";
-import { User } from "../models/userModel";
+} from '../models/file.model';
+import { User } from '../models/userModel';
 
 export const uploadFile = async (
   req: Request,
@@ -19,19 +19,19 @@ export const uploadFile = async (
     req.file;
 
   if (!hasFiles) {
-    res.status(400).json({ error: "No files uploaded" });
+    res.status(400).json({ error: 'No files uploaded' });
     return;
   }
 
   try {
     if (!req.user) {
-      res.status(401).json({ error: "Unauthorized" });
+      res.status(401).json({ error: 'Unauthorized' });
       return;
     }
 
     const user = req.user as User;
     if (!user.id) {
-      res.status(400).json({ error: "User ID is missing" });
+      res.status(400).json({ error: 'User ID is missing' });
       return;
     }
 
@@ -64,7 +64,6 @@ export const uploadFile = async (
         mimetype: file.mimetype,
         userId: userId,
         parentFolderId: parentFolderId,
-        isPublic: req.body.isPublic === "true",
         updatedAt: undefined,
       };
 
@@ -77,34 +76,33 @@ export const uploadFile = async (
     }
 
     res.status(201).json({
-      message: "Files uploaded successfully",
+      message: 'Files uploaded successfully',
       files: uploadedFiles,
     });
   } catch (err) {
-    console.error("Error uploading files:", err);
+    console.error('Error uploading files:', err);
     res
       .status(500)
-      .json({ error: "Internal server error while uploading files" });
+      .json({ error: 'Internal server error while uploading files' });
   }
 };
 
 export const getFiles = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!req.user) {
-      res.status(401).json({ error: "Unauthorized" });
+      res.status(401).json({ error: 'Unauthorized' });
       return;
     }
 
     const user = req.user as User;
     if (!user.id) {
-      res.status(400).json({ error: "User ID is missing" });
+      res.status(400).json({ error: 'User ID is missing' });
       return;
     }
 
     const userId = user.id;
 
     let files: File[];
-
     if (req.isAdmin === true) {
       files = await findAllFiles();
     } else {
@@ -112,7 +110,7 @@ export const getFiles = async (req: Request, res: Response): Promise<void> => {
     }
 
     res.status(200).json({
-      message: "Files retrieved successfully",
+      message: 'Files retrieved successfully',
       files: files.map((file) => ({
         id: file.id,
         filename: file.filename,
@@ -120,14 +118,13 @@ export const getFiles = async (req: Request, res: Response): Promise<void> => {
         size: file.size,
         mimetype: file.mimetype,
         createdAt: file.createdAt,
-        isPublic: file.isPublic,
       })),
     });
   } catch (err) {
-    console.error("Error fetching files:", err);
+    console.error('Error fetching files:', err);
     res
       .status(500)
-      .json({ error: "Internal server error while fetching files" });
+      .json({ error: 'Internal server error while fetching files' });
   }
 };
 
@@ -139,7 +136,7 @@ export const getFileData = async (
     const file = (req as any).fileData;
 
     res.status(200).json({
-      message: "File data retrieved successfully",
+      message: 'File data retrieved successfully',
       id: file.id,
       filename: file.filename,
       originalName: file.originalName,
@@ -148,15 +145,14 @@ export const getFileData = async (
       mimetype: file.mimetype,
       userId: file.userId,
       parentFolderId: file.parentFolderId,
-      isPublic: file.isPublic,
       createdAt: file.createdAt,
       updatedAt: file.updatedAt,
     });
   } catch (err) {
-    console.error("Error fetching file data:", err);
+    console.error('Error fetching file data:', err);
     res
       .status(500)
-      .json({ error: "Internal server error while fetching file data" });
+      .json({ error: 'Internal server error while fetching file data' });
   }
 };
 
@@ -169,23 +165,23 @@ export const downloadFile = async (
     const file = await findById(fileId);
 
     if (!file) {
-      res.status(404).json({ error: "File not found" });
+      res.status(404).json({ error: 'File not found' });
       return;
     }
 
     const filePath = file.filePath;
 
     if (!fs.existsSync(filePath)) {
-      res.status(404).json({ error: "File not found on server" });
+      res.status(404).json({ error: 'File not found on server' });
       return;
     }
 
     res.download(filePath, file.originalName);
   } catch (err) {
-    console.error("Error downloading file:", err);
+    console.error('Error downloading file:', err);
     res
       .status(500)
-      .json({ error: "Internal server error while downloading file" });
+      .json({ error: 'Internal server error while downloading file' });
   }
 };
 
@@ -198,17 +194,15 @@ export const removeFile = async (
     const file = await findById(fileId);
 
     if (!file) {
-      res.status(404).json({ error: "File not found" });
+      res.status(404).json({ error: 'File not found' });
       return;
     }
 
     if (
       !req.user ||
-      ((req.user as User).id !== file.userId &&
-        !file.isPublic &&
-        req.isAdmin !== true)
+      ((req.user as User).id !== file.userId && req.isAdmin !== true)
     ) {
-      res.status(403).json({ error: "Access denied" });
+      res.status(403).json({ error: 'Access denied' });
       return;
     }
 
@@ -221,15 +215,15 @@ export const removeFile = async (
     const deleted = await deleteFile(fileId);
 
     if (!deleted) {
-      res.status(500).json({ error: "Failed to delete file from database" });
+      res.status(500).json({ error: 'Failed to delete file from database' });
       return;
     }
 
-    res.status(200).json({ message: "File deleted successfully" });
+    res.status(200).json({ message: 'File deleted successfully' });
   } catch (err) {
-    console.error("Error deleting file:", err);
+    console.error('Error deleting file:', err);
     res
       .status(500)
-      .json({ error: "Internal server error while deleting file" });
+      .json({ error: 'Internal server error while deleting file' });
   }
 };

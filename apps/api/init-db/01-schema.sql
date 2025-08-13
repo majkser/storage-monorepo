@@ -5,7 +5,8 @@ CREATE TABLE users(
     usersurname VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     photo VARCHAR(255),
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    isAdmin BOOLEAN NOT NULL
 );
 
 CREATE TABLE files (
@@ -16,28 +17,27 @@ CREATE TABLE files (
     size BIGINT NOT NULL,
     mimetype VARCHAR(100) NOT NULL,
     userId VARCHAR(36),
-    parentFolderId VARCHAR(36), 
-    isPublic BOOLEAN NOT NULL DEFAULT FALSE,
+    parentFolderId VARCHAR(36),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP NULL DEFAULT NULL,
-    
+
     FOREIGN KEY (userId) REFERENCES users(id)
 );
 
 CREATE TABLE links (
-    id VARCHAR(36) DEFAULT (UUID()) PRIMARY KEY, 
+    id VARCHAR(36) DEFAULT (UUID()) PRIMARY KEY,
     token VARCHAR(255) NOT NULL UNIQUE,
-    fileId VARCHAR(36) NOT NULL, 
+    fileId VARCHAR(36) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (fileId) REFERENCES files(id)
 );
 
 CREATE TABLE fileAccess (
-    fileId VARCHAR(36) NOT NULL, 
+    fileId VARCHAR(36) NOT NULL,
     userId VARCHAR(36) NOT NULL,
     PRIMARY KEY (fileId, userId),
-    
+
     FOREIGN KEY (fileId) REFERENCES files(id),
     FOREIGN KEY (userId) REFERENCES users(id)
 );

@@ -47,14 +47,13 @@ app.get('/', (req: Request, res: Response) => {
 
 app.get('/api/user', (req: Request, res: Response) => {
   if (req.isAuthenticated()) {
-    const { id, username, email, photo } = req.user as User;
-    const adminEmails = (process.env.ADMIN_EMAILS || '').split(',');
+    const { id, username, email, photo, isAdmin } = req.user as User;
     res.json({
       id,
       username,
       email,
       photo,
-      isAdmin: adminEmails.includes(email),
+      isAdmin: Boolean(isAdmin),
     });
   } else {
     res.status(401).json({ message: 'Unauthorized' });

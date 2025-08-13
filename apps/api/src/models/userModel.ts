@@ -1,4 +1,4 @@
-import dbConnection from "../config/db-connection";
+import dbConnection from '../config/db-connection';
 
 export interface User {
   id?: string;
@@ -7,14 +7,22 @@ export interface User {
   usersurname: string;
   email: string;
   photo?: string;
+  isAdmin: boolean;
 }
 
 export async function createUser(user: User): Promise<void> {
   const connection = await dbConnection.getConnection();
   try {
     await connection.execute(
-      "INSERT INTO users (googleId, username, usersurname, email, photo) VALUES (?, ?, ?, ?, ?)",
-      [user.googleId, user.username, user.usersurname, user.email, user.photo]
+      'INSERT INTO users (googleId, username, usersurname, email, photo, isAdmin) VALUES (?, ?, ?, ?, ?, ?)',
+      [
+        user.googleId,
+        user.username,
+        user.usersurname,
+        user.email,
+        user.photo,
+        user.isAdmin,
+      ]
     );
   } finally {
     connection.release();
@@ -25,7 +33,7 @@ export async function getUserByEmail(email: string): Promise<User | null> {
   const connection = await dbConnection.getConnection();
   try {
     const [rows]: [any[], any] = await connection.execute(
-      "SELECT * FROM users WHERE email = ?",
+      'SELECT * FROM users WHERE email = ?',
       [email]
     );
 
@@ -44,7 +52,7 @@ export async function getUserByGoogleId(
   const connection = await dbConnection.getConnection();
   try {
     const [rows]: [any[], any] = await connection.execute(
-      "SELECT * FROM users WHERE googleId = ?",
+      'SELECT * FROM users WHERE googleId = ?',
       [googleId]
     );
 
@@ -61,7 +69,7 @@ export async function getUserById(id: string): Promise<User | null> {
   const connection = await dbConnection.getConnection();
   try {
     const [rows]: [any[], any] = await connection.execute(
-      "SELECT * FROM users WHERE id = ?",
+      'SELECT * FROM users WHERE id = ?',
       [id]
     );
 

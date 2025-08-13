@@ -1,7 +1,7 @@
-import passport from "passport";
-import { Profile, VerifyCallback } from "passport-google-oauth20";
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
-import dotenv from "dotenv";
+import passport from 'passport';
+import { Profile, VerifyCallback } from 'passport-google-oauth20';
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+import dotenv from 'dotenv';
 dotenv.config();
 import {
   createUser,
@@ -9,7 +9,7 @@ import {
   getUserByGoogleId,
   getUserById,
   User,
-} from "../models/userModel";
+} from '../models/userModel';
 
 passport.use(
   new GoogleStrategy(
@@ -40,6 +40,9 @@ passport.use(
             usersurname: profile.name!.familyName,
             photo: profile.photos![0].value,
             email: email,
+            isAdmin: (process.env.ADMIN_EMAILS?.split(',') || []).includes(
+              email
+            ), // Check if the email is in the admin list
           };
 
           await createUser(newUser);
