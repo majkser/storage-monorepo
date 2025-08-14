@@ -1,50 +1,49 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { UserPlus, Trash2, Crown } from "lucide-react";
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { UserPlus, Trash2, Crown } from 'lucide-react';
 
 export default function AdminPage() {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const [adminUsers, setAdminUsers] = useState([
     {
       id: 1,
-      email: "mikolaj@storage.com",
-      name: "Mikolaj",
-      grantedOn: "15.07.2025",
-      grantedBy: "System",
+      email: 'mikolaj@storage.com',
+      name: 'Mikolaj',
+      grantedOn: '15.07.2025',
+      grantedBy: 'System',
     },
     {
       id: 2,
-      email: "admin@storage.com",
-      name: "Admin User",
-      grantedOn: "10.07.2025",
-      grantedBy: "mikolaj@storage.com",
+      email: 'admin@storage.com',
+      name: 'Admin User',
+      grantedOn: '10.07.2025',
+      grantedBy: 'mikolaj@storage.com',
     },
   ]);
 
   const handleGrantAdmin = () => {
-    if (email) {
-      const newAdmin = {
-        id: adminUsers.length + 1,
-        email: email,
-        name: email.split("@")[0],
-        grantedOn: new Date().toLocaleDateString("en-GB"),
-        grantedBy: "mikolaj@storage.com",
-      };
-      setAdminUsers([...adminUsers, newAdmin]);
-      setEmail("");
-    }
+    fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/change-admin-status`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ email: email, changeAdminStatusTo: true }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
   };
 
   const handleRevokeAdmin = (id: number) => {
@@ -109,7 +108,7 @@ export default function AdminPage() {
               variant="secondary"
               className="bg-brand/20 text-brand border-brand/30"
             >
-              {adminUsers.length} Admin{adminUsers.length !== 1 ? "s" : ""}
+              {adminUsers.length} Admin{adminUsers.length !== 1 ? 's' : ''}
             </Badge>
           </div>
 
@@ -142,7 +141,7 @@ export default function AdminPage() {
                         size="sm"
                         onClick={() => handleRevokeAdmin(user.id)}
                         className="text-destructive border-destructive bg-destructive/10 hover:bg-destructive/20 hover:text-destructive-foreground transition-colors duration-200 shadow-sm rounded-md px-3 py-1"
-                        disabled={user.email === "mikolaj@storage.com"}
+                        disabled={user.email === 'mikolaj@storage.com'}
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
                         Revoke
