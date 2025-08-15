@@ -80,6 +80,11 @@ export default function AdminPage() {
     }
   };
 
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   return (
     <>
       {/* Content */}
@@ -122,7 +127,7 @@ export default function AdminPage() {
               <Button
                 onClick={handleGrantAdmin}
                 className="bg-brand hover:bg-brand/90 text-black font-medium px-6"
-                disabled={!email}
+                disabled={!isValidEmail(email)}
               >
                 Grant Admin
               </Button>
