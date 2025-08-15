@@ -25,7 +25,10 @@ export default function AdminPage() {
   async function getAdmins() {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/admin-emails`
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/admin-emails`,
+        {
+          credentials: 'include',
+        }
       );
       const data = await response.json();
       setAdminEmails(data);
@@ -44,6 +47,7 @@ export default function AdminPage() {
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
         }
       );
 
@@ -68,6 +72,7 @@ export default function AdminPage() {
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
         }
       );
     } catch (error) {
