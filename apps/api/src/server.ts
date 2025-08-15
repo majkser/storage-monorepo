@@ -4,17 +4,11 @@ import cors from 'cors';
 import './controllers/auth';
 import passport from 'passport';
 import session from 'express-session';
-import { User } from './models/userModel';
 import fileRoutes from './routes/file.routes';
 import authRoutes from './routes/authRoutes';
 import linkRoutes from './routes/linkRoutes';
 import fileAccessRoutes from './routes/fileAccessRoutes';
-import {
-  changeUserAdminStatus,
-  getAdminsEmails,
-  getUserIdByEmail,
-} from './controllers/userController';
-import isAdmin from './middlewares/isAdmin.middleware';
+import userRoutes from './routes/userRoutes';
 
 dotenv.config();
 
@@ -50,63 +44,6 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Hello World!');
 });
 
-app.get('/api/user', (req: Request, res: Response) => {
-  if (req.isAuthenticated()) {
-    const { id, username, email, photo, isAdmin } = req.user as User;
-    res.json({
-      id,
-      username,
-      email,
-      photo,
-      isAdmin: Boolean(isAdmin),
-    });
-  } else {
-    res.status(401).json({ message: 'Unauthorized' });
-  }
-});
-
-app.get('/api/user/validate-session', (req: Request, res: Response) => {
-  if (req.user) {
-    res.sendStatus(200);
-  } else {
-    res.sendStatus(401);
-  }
-});
-
-app.get('/api/user/email/:email', async (req: Request, res: Response) => {
-  try {
-    const userId = await getUserIdByEmail(req.params.email);
-    if (userId) {
-      res.json({ userId });
-    } else {
-      res.status(404).json({ message: 'User not found' });
-    }
-  } catch (error) {
-    res.status(500).json({ message: 'Error retrieving user ID' });
-  }
-});
-
-app.patch(
-  '/api/user/change-admin-status',
-  async (req: Request, res: Response) => {
-    const email: string = req.body.email;
-    const changeAdminStatusTo: boolean = req.body.changeAdminStatusTo;
-
-    // TODO: extract this and add middlewares(isAdmin etc...)!!!
-
-    try {
-      await changeUserAdminStatus(email, changeAdminStatusTo);
-      res.sendStatus(204);
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: 'Error changing admin status', error: error.message });
-    }
-  }
-);
-
-app.get('/api/user/admin-emails', isAdmin, getAdminsEmails);
-
 app.use('/api/auth', authRoutes);
 
 app.use('/api/files', fileRoutes);
@@ -114,6 +51,8 @@ app.use('/api/files', fileRoutes);
 app.use('/api/link', linkRoutes);
 
 app.use('/api/file-access', fileAccessRoutes);
+
+app.use('/api/user', userRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

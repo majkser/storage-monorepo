@@ -3,21 +3,29 @@ import { updateAdminPrivileges } from '../models/userModel';
 import { getAdmins } from '../models/userModel';
 import { Request, Response } from 'express';
 
-export async function getUserIdByEmail(email: string): Promise<string | null> {
-  const user = await getUserByEmail(email);
-  return user ? user.id ?? null : null;
-}
+export async function changeUserAdminStatus(req: Request, res: Response) {
+  const email: string = req.body.email;
+  const changeAdminStatusTo: boolean = req.body.changeAdminStatusTo;
 
-export async function changeUserAdminStatus(
-  email: string,
-  changeAdminStatusTo: boolean
-): Promise<void> {
-  const user = await getUserByEmail(email);
-  if (!user) {
-    throw new Error('User not found');
+  if (email === 'mikser.kowalski@gmail.com') {
+    return res
+      .status(403)
+      .json({ message: 'Admin status cannot be changed for this user.' });
   }
 
-  await updateAdminPrivileges(user.id, changeAdminStatusTo);
+  try {
+    const user = await getUserByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    await updateAdminPrivileges(user.id, changeAdminStatusTo);
+    res.sendStatus(204);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'Error changing admin status', error: error.message });
+  }
 }
 
 export async function getAdminsEmails(
@@ -26,7 +34,8 @@ export async function getAdminsEmails(
 ): Promise<void> {
   try {
     const admins = await getAdmins();
-    res.status(200).json(admins.map((admin) => admin.email));
+    const adminEmails = admins.map((admin) => admin.email);
+    res.status(200).json(adminEmails);
   } catch (error) {
     res
       .status(500)
