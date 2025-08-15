@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,38 +16,63 @@ import { UserPlus, Trash2, Crown } from 'lucide-react';
 
 export default function AdminPage() {
   const [email, setEmail] = useState('');
-  const [adminUsers, setAdminUsers] = useState([
-    {
-      id: 1,
-      email: 'mikolaj@storage.com',
-      name: 'Mikolaj',
-      grantedOn: '15.07.2025',
-      grantedBy: 'System',
-    },
-    {
-      id: 2,
-      email: 'admin@storage.com',
-      name: 'Admin User',
-      grantedOn: '10.07.2025',
-      grantedBy: 'mikolaj@storage.com',
-    },
-  ]);
+  const [adminEmails, setAdminEmails] = useState([]);
 
-  const handleGrantAdmin = () => {
-    fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/change-admin-status`,
-      {
-        method: 'PATCH',
-        body: JSON.stringify({ email: email, changeAdminStatusTo: true }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+  useEffect(() => {
+    getAdmins();
+  }, [adminEmails]);
+
+  async function getAdmins() {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/admin-emails`
+      );
+      const data = await response.json();
+      setAdminEmails(data);
+    } catch (error) {
+      console.error('Error occurred while fetching admin emails:', error);
+    }
+  }
+
+  async function handleGrantAdmin() {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/change-admin-status`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ email: email, changeAdminStatusTo: true }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (res.ok) {
+        setEmail('');
+        getAdmins();
+      } else {
+        console.error('Failed to grant admin privileges');
       }
-    );
-  };
+    } catch (error) {
+      console.error('Error occurred while granting admin privileges:', error);
+    }
+  }
 
-  const handleRevokeAdmin = (id: number) => {
-    setAdminUsers(adminUsers.filter((user) => user.id !== id));
+  const handleRevokeAdmin = async (email: string) => {
+    try {
+      await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/change-admin-status`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ email: email, changeAdminStatusTo: false }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    } catch (error) {
+      console.error('Error occurred while revoking admin privileges:', error);
+    }
   };
 
   return (
@@ -108,13 +133,13 @@ export default function AdminPage() {
               variant="secondary"
               className="bg-brand/20 text-brand border-brand/30"
             >
-              {adminUsers.length} Admin{adminUsers.length !== 1 ? 's' : ''}
+              {adminEmails.length} Admin{adminEmails.length !== 1 ? 's' : ''}
             </Badge>
           </div>
 
           <div className="space-y-3">
-            {adminUsers.map((user) => (
-              <Card key={user.id} className="bg-gray-900/50 border-gray-800">
+            {adminEmails.map((email) => (
+              <Card key={email} className="bg-gray-900/50 border-gray-800">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between sm:flex-row sm:gap-0 flex-col gap-8">
                     <div className="flex items-center gap-4 sm:flex-row flex-col">
@@ -124,7 +149,7 @@ export default function AdminPage() {
                       <div>
                         <div className="flex items-center gap-4 sm:flex-row flex-col">
                           <h5 className="span font-medium text-primary-foreground">
-                            {user.email}
+                            {email}
                           </h5>
                           <Badge
                             variant="outline"
@@ -139,9 +164,9 @@ export default function AdminPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleRevokeAdmin(user.id)}
+                        onClick={() => handleRevokeAdmin(email)}
                         className="text-destructive border-destructive bg-destructive/10 hover:bg-destructive/20 hover:text-destructive-foreground transition-colors duration-200 shadow-sm rounded-md px-3 py-1"
-                        disabled={user.email === 'mikolaj@storage.com'}
+                        disabled={email === 'mikser.kowalski@gmail.com'}
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
                         Revoke
