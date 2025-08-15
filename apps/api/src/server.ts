@@ -11,8 +11,10 @@ import linkRoutes from './routes/linkRoutes';
 import fileAccessRoutes from './routes/fileAccessRoutes';
 import {
   changeUserAdminStatus,
+  getAdminsEmails,
   getUserIdByEmail,
 } from './controllers/userController';
+import isAdmin from './middlewares/isAdmin.middleware';
 
 dotenv.config();
 
@@ -90,9 +92,7 @@ app.patch(
     const email: string = req.body.email;
     const changeAdminStatusTo: boolean = req.body.changeAdminStatusTo;
 
-    console.log(`Changing admin status for ${email} to ${changeAdminStatusTo}`);
-
-    // TODO: extract this !!!
+    // TODO: extract this and add middlewares(isAdmin etc...)!!!
 
     try {
       await changeUserAdminStatus(email, changeAdminStatusTo);
@@ -104,6 +104,8 @@ app.patch(
     }
   }
 );
+
+app.get('/api/user/admin-emails', isAdmin, getAdminsEmails);
 
 app.use('/api/auth', authRoutes);
 

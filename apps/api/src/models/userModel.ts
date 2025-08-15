@@ -96,3 +96,17 @@ export async function updateAdminPrivileges(
     connection.release();
   }
 }
+
+export async function getAdmins(): Promise<User[]> {
+  const connection = await dbConnection.getConnection();
+  try {
+    const [rows]: [any[], any] = await connection.execute(
+      'SELECT * FROM users WHERE isAdmin = ?',
+      [true]
+    );
+
+    return Array.isArray(rows) ? rows.map((row) => row as User) : [];
+  } finally {
+    connection.release();
+  }
+}
