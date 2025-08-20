@@ -1,14 +1,16 @@
-"use client";
+'use client';
 
-import { use, useState } from "react";
-import GenerateLinkButton from "@/components/generateLinkButton";
-import { Music, ImageIcon, Film, MoreHorizontal } from "lucide-react";
-import DownloadButton from "@/components/downloads/downloadButton";
-import { File } from "@/app/types/fileInterface";
-import { fileContext } from "@/context/fileContext";
-import { SearchFilesContext } from "@/context/searchFilesContext";
-import { Button } from "../ui/button";
-import { ChevronsRight, ChevronsLeft } from "lucide-react";
+import { use, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import GenerateLinkButton from '@/components/generateLinkButton';
+import { Music, ImageIcon, Film, MoreHorizontal } from 'lucide-react';
+import DownloadButton from '@/components/downloads/downloadButton';
+import { File } from '@/app/types/fileInterface';
+import { fileContext } from '@/context/fileContext';
+import { SearchFilesContext } from '@/context/searchFilesContext';
+import { Button } from '../ui/button';
+import { ChevronsRight, ChevronsLeft } from 'lucide-react';
+import { AllFilesCheckbox } from './file-access/allFilesCheckbox';
 
 export default function AllFiles({
   sort,
@@ -23,11 +25,12 @@ export default function AllFiles({
   const { searchQuery } = use(SearchFilesContext);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const pathname = usePathname();
 
   let filteredFiles = files.filter(
     (file: File) =>
       !filter ||
-      filter === "All" ||
+      filter === 'All' ||
       categoryBasedOnMimeType(file.mimetype) === filter
   );
 
@@ -58,11 +61,11 @@ export default function AllFiles({
 
   function chooseSortFunction(a: File, b: File) {
     switch (sort) {
-      case "alphabetically":
+      case 'alphabetically':
         return sortingOrderDesc
           ? sortAlphabetically(a, b)
           : sortAlphabetically(b, a);
-      case "size":
+      case 'size':
         return sortingOrderDesc ? sortBySize(a, b) : sortBySize(b, a);
       default:
         return sortingOrderDesc
@@ -85,48 +88,48 @@ export default function AllFiles({
 
   const category = new Map([
     [
-      "Music",
+      'Music',
       {
         icon: Music,
-        color: "bg-red-500/20",
-        iconColor: "text-red-500",
+        color: 'bg-red-500/20',
+        iconColor: 'text-red-500',
       },
     ],
     [
-      "Images",
+      'Images',
       {
         icon: ImageIcon,
-        color: "bg-blue-500/20",
-        iconColor: "text-blue-500",
+        color: 'bg-blue-500/20',
+        iconColor: 'text-blue-500',
       },
     ],
     [
-      "Media",
+      'Media',
       {
         icon: Film,
-        color: "bg-brand",
-        iconColor: "text-white",
+        color: 'bg-brand',
+        iconColor: 'text-white',
       },
     ],
     [
-      "Others",
+      'Others',
       {
         icon: MoreHorizontal,
-        color: "bg-purple-500/20",
-        iconColor: "text-purple-500",
+        color: 'bg-purple-500/20',
+        iconColor: 'text-purple-500',
       },
     ],
   ]);
 
   function categoryBasedOnMimeType(mimeType: string): string {
-    if (mimeType.startsWith("audio/")) {
-      return "Music";
-    } else if (mimeType.startsWith("image/")) {
-      return "Images";
-    } else if (mimeType.startsWith("video/")) {
-      return "Media";
+    if (mimeType.startsWith('audio/')) {
+      return 'Music';
+    } else if (mimeType.startsWith('image/')) {
+      return 'Images';
+    } else if (mimeType.startsWith('video/')) {
+      return 'Media';
     } else {
-      return "Others";
+      return 'Others';
     }
   }
 
@@ -155,8 +158,8 @@ export default function AllFiles({
               <div>
                 <h2 className="text-white text-2xl">{file.originalName}</h2>
                 <p className="text-gray-400">
-                  Uploaded on:{" "}
-                  {new Date(file.createdAt).toLocaleDateString("pl-PL")}
+                  Uploaded on:{' '}
+                  {new Date(file.createdAt).toLocaleDateString('pl-PL')}
                 </p>
                 {file.size < Math.pow(10, 6) && (
                   <p className="text-sm text-gray-400">
@@ -177,12 +180,17 @@ export default function AllFiles({
               </div>
             </div>
             <div className="flex items-center flex-row md:flex-col gap-2 mt-2">
-              <GenerateLinkButton fileId={file.id} />
-              <DownloadButton
-                fileId={file.id}
-                fileName={file.originalName}
-                label="Download"
-              />
+              {!pathname.includes('dashboard/') && (
+                <>
+                  <GenerateLinkButton fileId={file.id} />
+                  <DownloadButton
+                    fileId={file.id}
+                    fileName={file.originalName}
+                    label="Download"
+                  />
+                </>
+              )}
+              {pathname.includes('file-access') && <AllFilesCheckbox />}
             </div>
           </div>
         ))}
@@ -197,19 +205,19 @@ export default function AllFiles({
           <Button
             onClick={prevPage}
             disabled={currentPage === 1}
-            variant={"link"}
+            variant={'link'}
             className="text-white"
           >
             <ChevronsLeft className="scale-200" />
           </Button>
           <span className="text-white span">
-            Page {currentPage} of{" "}
+            Page {currentPage} of{' '}
             {Math.ceil(filteredFiles.length / itemsPerPage)}
           </span>
           <Button
             onClick={nextPage}
             disabled={currentPage * itemsPerPage >= filteredFiles.length}
-            variant={"link"}
+            variant={'link'}
             className="text-white"
           >
             <ChevronsRight className="scale-200" />
