@@ -190,7 +190,9 @@ export default function AllFiles({
                   />
                 </>
               )}
-              {pathname.includes('file-access') && <AllFilesCheckbox />}
+              {pathname.includes('file-access') && (
+                <AllFilesCheckbox {...file} />
+              )}
             </div>
           </div>
         ))}

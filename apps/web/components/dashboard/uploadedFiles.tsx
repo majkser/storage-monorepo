@@ -5,6 +5,8 @@ import { useState } from 'react';
 import AllFiles from './allFiles';
 import { SearchBar } from './search-bar';
 import { usePathname } from 'next/navigation';
+import FileAccessForm from './file-access/fileAccessForm';
+import { SelectedFilesProvider } from '@/context/selectedFilesContext';
 
 export default function UploadedFiles() {
   const [sort, setSort] = useState('');
@@ -37,14 +39,15 @@ export default function UploadedFiles() {
         />
       </div>
       <div className="flex">
-        <AllFiles
-          sort={sort}
-          filter={filter}
-          sortingOrderDesc={sortingOrderDesc}
-        />
-        {pathname.includes('file-access') && (
-          <p className="text-white text-center w-1/3">FORM placeholder</p>
-        )}
+        <SelectedFilesProvider>
+          <AllFiles
+            sort={sort}
+            filter={filter}
+            sortingOrderDesc={sortingOrderDesc}
+          />
+
+          {pathname.includes('file-access') && <FileAccessForm />}
+        </SelectedFilesProvider>
       </div>
     </div>
   );
