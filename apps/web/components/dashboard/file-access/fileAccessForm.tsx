@@ -8,13 +8,13 @@ export default function FileAccessForm() {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     const formData = new FormData(event.target as HTMLFormElement);
-    const email = formData.get('email');
+    const email = formData.get('email') as string;
     console.log('Sharing files with:', email);
 
     postFileAccesss(email);
   }
 
-  async function postFileAccesss(email: any) {
+  async function postFileAccesss(email: string) {
     console.log(
       JSON.stringify({
         email: email,
