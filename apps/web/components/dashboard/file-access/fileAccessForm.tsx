@@ -5,11 +5,36 @@ import { Button } from '@/components/ui/button';
 export default function FileAccessForm() {
   const { selectedFiles, clearSelectedFiles } = use(SelectedFilesContext);
 
-  function handleSubmit(event: React.FormEvent) {
+  async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     const formData = new FormData(event.target as HTMLFormElement);
     const email = formData.get('email');
     console.log('Sharing files with:', email);
+
+    postFileAccesss(email);
+  }
+
+  async function postFileAccesss(email: any) {
+    console.log(
+      JSON.stringify({
+        email: email,
+        fileIds: selectedFiles.map((file) => file.id),
+      })
+    );
+    await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/file-access/give-access`,
+      {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          fileIds: selectedFiles.map((file) => file.id),
+        }),
+      }
+    );
   }
 
   return (
