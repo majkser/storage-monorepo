@@ -1,4 +1,7 @@
-import { createFileAccess } from '../models/fileAccessModel';
+import {
+  createFileAccess,
+  getFileAccessByUserEmail,
+} from '../models/fileAccessModel';
 import { Request, Response } from 'express';
 import { getUserByEmail } from '../models/userModel';
 
@@ -20,10 +23,13 @@ export async function createFileAccessController(
       return;
     }
 
-    fileIds.map(
-      async (fileId: string) =>
-        await createFileAccess({ fileId: fileId, userId: user.id })
-    );
+    fileIds.map(async (fileId: string) => {
+      //add check if the file access already exists
+      const existingAccess = await getFileAccessByUserEmail(email);
+      if (!existingAccess.find((access) => access.fileId === fileId)) {
+        await createFileAccess({ fileId: fileId, userId: user.id });
+      }
+    });
 
     res.status(201).json({ message: 'File access created successfully' });
   } catch (error) {

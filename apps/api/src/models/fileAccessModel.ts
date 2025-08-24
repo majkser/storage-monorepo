@@ -1,4 +1,4 @@
-import dbConnection from "../config/db-connection";
+import dbConnection from '../config/db-connection';
 
 export interface FileAccess {
   fileId: string;
@@ -10,15 +10,28 @@ export async function createFileAccess(FileAccess: FileAccess): Promise<void> {
 
   try {
     connection.execute(
-      "INSERT INTO fileAccess (fileId, userId) VALUES (?, ?)",
+      'INSERT INTO fileAccess (fileId, userId) VALUES (?, ?)',
       [FileAccess.fileId, FileAccess.userId]
     );
   } catch (error) {
-    console.error("Error creating file access:", error);
+    console.error('Error creating file access:', error);
     throw error;
   }
 }
 
-export async function getFileAccessByUserId() {
-  //TODO: Implement this function to retrieve file access by userId
+export async function getFileAccessByUserEmail(
+  email: string
+): Promise<FileAccess[]> {
+  const connection = await dbConnection.getConnection();
+
+  try {
+    const [rows] = await connection.execute(
+      'SELECT * FROM fileAccess WHERE userId = (SELECT id FROM users WHERE email = ?)',
+      [email]
+    );
+    return rows as FileAccess[];
+  } catch (error) {
+    console.error('Error retrieving file access:', error);
+    throw error;
+  }
 }
