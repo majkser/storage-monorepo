@@ -1,6 +1,7 @@
 import { use } from 'react';
 import { SelectedFilesContext } from '@/context/selectedFilesContext';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 export default function FileAccessForm() {
   const { selectedFiles, clearSelectedFiles } = use(SelectedFilesContext);
@@ -15,26 +16,30 @@ export default function FileAccessForm() {
   }
 
   async function postFileAccesss(email: string) {
-    console.log(
-      JSON.stringify({
-        email: email,
-        fileIds: selectedFiles.map((file) => file.id),
-      })
-    );
-    await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/file-access/give-access`,
-      {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email,
-          fileIds: selectedFiles.map((file) => file.id),
-        }),
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/file-access/give-access`,
+        {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email,
+            fileIds: selectedFiles.map((file) => file.id),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        toast.error('Error sharing files');
+      } else {
+        toast.success('Files shared successfully');
       }
-    );
+    } catch (error) {
+      console.error('Error sharing files:', error);
+    }
   }
 
   return (
