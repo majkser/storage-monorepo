@@ -33,7 +33,8 @@ export async function middleware(request: NextRequest) {
     // Check admin permissions with separate try-catch
     if (
       request.nextUrl.pathname.startsWith('/dashboard/admin') ||
-      request.nextUrl.pathname.startsWith('/dashboard/file-access')
+      request.nextUrl.pathname.startsWith('/dashboard/file-access') ||
+      request.nextUrl.pathname.startsWith('/dashboard/revoke-file-access')
     ) {
       try {
         const response = await fetch(
