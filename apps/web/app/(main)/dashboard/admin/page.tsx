@@ -16,28 +16,27 @@ export default function AdminPage() {
   return (
     <>
       {/* Content */}
-      <main className="p-6 text-primary-foreground min-w-[300px]">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Admin Management</h1>
-          <p className="text-muted-foreground">
-            Grant and manage admin privileges for users
-          </p>
-        </div>
 
-        {/* Grant Admin Form */}
-        <GrantAdminForm
-          handleGrantAdmin={handleGrantAdmin}
-          email={email}
-          setEmail={setEmail}
-          isValidEmail={isValidEmail}
-        />
+      <div className="p-6 pt-0 md:pt-6 w-full max-w-[1200px] mx-auto mb-4">
+        <h1 className="text-white h2">Admin Management</h1>
+        <p className="text-muted-foreground">
+          Here you can manage admin privileges for users.
+        </p>
+      </div>
 
-        {/* Current Admins */}
-        <CurrentAdmins
-          adminEmails={adminEmails}
-          handleRevokeAdmin={handleRevokeAdmin}
-        />
-      </main>
+      {/* Grant Admin Form */}
+      <GrantAdminForm
+        handleGrantAdmin={handleGrantAdmin}
+        email={email}
+        setEmail={setEmail}
+        isValidEmail={isValidEmail}
+      />
+
+      {/* Current Admins */}
+      <CurrentAdmins
+        adminEmails={adminEmails}
+        handleRevokeAdmin={handleRevokeAdmin}
+      />
     </>
   );
 }

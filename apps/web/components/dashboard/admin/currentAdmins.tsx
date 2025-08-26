@@ -25,7 +25,7 @@ export default function CurrentAdmins({
 
       <div className="space-y-3">
         {adminEmails.map((email) => (
-          <Card key={email} className="bg-gray-900/50 border-gray-800">
+          <Card key={email} className="bg-card border-card-background">
             <CardContent className="p-4">
               <div className="flex items-center justify-between sm:flex-row sm:gap-0 flex-col gap-8">
                 <div className="flex items-center gap-4 sm:flex-row flex-col">
@@ -34,9 +34,7 @@ export default function CurrentAdmins({
                   </div>
                   <div>
                     <div className="flex items-center gap-4 sm:flex-row flex-col">
-                      <h5 className="span font-medium text-primary-foreground">
-                        {email}
-                      </h5>
+                      <h5 className="span font-medium text-primary">{email}</h5>
                       <Badge
                         variant="outline"
                         className="text-xs border-brand/30 text-brand"

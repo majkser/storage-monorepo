@@ -22,13 +22,11 @@ export default function GrantAdminForm({
   isValidEmail: (email: string) => boolean;
 }) {
   return (
-    <Card className="mb-8 bg-gray-900 border-gray-800">
+    <Card className="mb-8 bg-card/50 border-card-background">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <UserPlus className="w-5 h-5 text-brand" />
-          <span className="span text-primary-foreground">
-            Grant Admin Privileges
-          </span>
+          <span className="span text-primary">Grant Admin Privileges</span>
         </CardTitle>
         <CardDescription>
           Enter a users email address to grant them admin privileges
