@@ -26,6 +26,24 @@ export default function RevokeFileAccessPage() {
     text: string;
   } | null>(null);
 
+  async function fetchUserCurrentFiles(email = 'freetylelove@gmail.com') {
+    const files = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/file-access/get-access/${email}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    console.log(files.json());
+  }
+
+  fetchUserCurrentFiles();
+  // TODO: Replace with actual files from the server - apply this function
+
   const files = [
     { id: '1', name: 'project-proposal.pdf', type: 'PDF', size: '2.4 MB' },
     { id: '2', name: 'financial-report.xlsx', type: 'Excel', size: '1.8 MB' },
