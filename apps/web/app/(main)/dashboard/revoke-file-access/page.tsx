@@ -2,7 +2,7 @@
 
 import type React from 'react';
 
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,9 +16,11 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { AlertCircle, CheckCircle2, FileText, Trash2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { File } from '@/app/types/fileInterface';
 
 export default function RevokeFileAccessPage() {
   const [email, setEmail] = useState('');
+  const [userFiles, setUserFiles] = useState<File[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{
@@ -26,31 +28,72 @@ export default function RevokeFileAccessPage() {
     text: string;
   } | null>(null);
 
-  async function fetchUserCurrentFiles(email = 'freetylelove@gmail.com') {
-    const files = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/file-access/get-access/${email}`,
-      {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+  async function fetchUserCurrentFiles(email: string) {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/file-access/get-access/${email}`,
+        {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-    console.log(files.json());
+      if (!response.ok) {
+        throw new Error('Failed to fetch user files');
+      }
+
+      const filesIds = await response.json();
+
+      const files: File[] = await Promise.all(
+        filesIds.map(async (fileId: string) => {
+          return await getFileData(fileId);
+        })
+      );
+
+      return files;
+    } catch (error) {
+      console.error('Error fetching user files:', error);
+      return [];
+    }
   }
 
-  fetchUserCurrentFiles();
-  // TODO: Replace with actual files from the server - apply this function
+  async function getFileData(fileId: string) {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/files/${fileId}`,
+        {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-  const files = [
-    { id: '1', name: 'project-proposal.pdf', type: 'PDF', size: '2.4 MB' },
-    { id: '2', name: 'financial-report.xlsx', type: 'Excel', size: '1.8 MB' },
-    { id: '3', name: 'presentation.pptx', type: 'PowerPoint', size: '5.2 MB' },
-    { id: '4', name: 'design-assets.zip', type: 'Archive', size: '12.1 MB' },
-    { id: '5', name: 'meeting-notes.docx', type: 'Word', size: '0.8 MB' },
-  ];
+      if (!response.ok) {
+        throw new Error('Failed to fetch file data');
+      }
+
+      const fileData = await response.json();
+      return fileData;
+    } catch (error) {
+      console.error('Error fetching file data:', error);
+      return null;
+    }
+  }
+
+  async function handleGetUserFiles(event: FormEvent) {
+    event.preventDefault();
+
+    const formData = new FormData(event.target as HTMLFormElement);
+
+    const files = await fetchUserCurrentFiles(formData.get('email') as string);
+
+    setUserFiles(files);
+  }
 
   const handleFileToggle = (fileId: string) => {
     setSelectedFiles((prev) =>
@@ -104,10 +147,6 @@ export default function RevokeFileAccessPage() {
     }
   };
 
-  const selectedFilesData = files.filter((file) =>
-    selectedFiles.includes(file.id)
-  );
-
   return (
     <>
       <div className="p-6 pt-0 md:pt-6 w-full max-w-[1200px] mx-auto mb-4">
@@ -130,22 +169,23 @@ export default function RevokeFileAccessPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleRevokeAccess} className="space-y-6">
-            <div className="space-y-2">
+          <div className="space-y-2">
+            <form onSubmit={(event) => handleGetUserFiles(event)}>
               <Label htmlFor="email" className="text-sm font-medium">
                 User Email Address *
               </Label>
               <Input
                 id="email"
                 type="email"
+                name="email"
                 placeholder="user@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 className="w-full"
                 required
               />
-            </div>
-
+              <Button type="submit">Get user files</Button>
+            </form>
+          </div>
+          <form onSubmit={handleRevokeAccess} className="space-y-6">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium">
@@ -157,14 +197,14 @@ export default function RevokeFileAccessPage() {
                   size="sm"
                   onClick={handleSelectAll}
                 >
-                  {selectedFiles.length === files.length
+                  {/* {selectedFiles.length === userFiles.length
                     ? 'Deselect All'
-                    : 'Select All'}
+                    : 'Select All'} */}
                 </Button>
               </div>
               <Card className="p-4">
                 <div className="space-y-3">
-                  {files.map((file) => (
+                  {userFiles.map((file: File) => (
                     <div key={file.id} className="flex items-center space-x-3">
                       <Checkbox
                         id={file.id}
@@ -177,9 +217,11 @@ export default function RevokeFileAccessPage() {
                       >
                         <FileText className="h-4 w-4" />
                         <div className="flex flex-col">
-                          <span className="font-medium">{file.name}</span>
+                          <span className="font-medium">
+                            {file.originalName}
+                          </span>
                           <span className="text-xs text-muted-foreground">
-                            {file.type} • {file.size}
+                            {file.mimetype} • {file.size}
                           </span>
                         </div>
                       </label>
@@ -189,24 +231,24 @@ export default function RevokeFileAccessPage() {
               </Card>
             </div>
 
-            {selectedFilesData.length > 0 && (
+            {selectedFiles.length > 0 && (
               <Card className="bg-muted/50">
                 <CardContent className="pt-4">
                   <div className="space-y-3">
                     <p className="font-medium text-sm">
-                      Selected Files ({selectedFilesData.length}):
+                      Selected Files ({selectedFiles.length}):
                     </p>
-                    {selectedFilesData.map((file) => (
+                    {/* {selectedFiles.map((file: File) => (
                       <div key={file.id} className="flex items-center gap-3">
                         <FileText className="h-6 w-6 text-muted-foreground" />
                         <div>
-                          <p className="font-medium">{file.name}</p>
+                          <p className="font-medium">{file.originalName}</p>
                           <p className="text-sm text-muted-foreground">
-                            {file.type} • {file.size}
+                            {file.mimetype} • {file.size}
                           </p>
                         </div>
                       </div>
-                    ))}
+                    ))} */}
                   </div>
                 </CardContent>
               </Card>
