@@ -24,12 +24,10 @@ router.post(
 );
 
 router.get(
-  '/get-access',
+  '/get-access/:email',
   isAuthenticated,
   isAdmin,
-  body('email').notEmpty().isString().withMessage('email is required'),
   validateRequest,
-  userExistenceValidator,
   getFileAccessByUserEmailController
 );
 

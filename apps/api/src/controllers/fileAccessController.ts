@@ -36,11 +36,13 @@ export async function getFileAccessByUserEmailController(
   req: Request,
   res: Response
 ): Promise<void> {
-  const email = req.body.email;
+  const email = req.params.email;
 
   try {
-    const fileAccess = await getFileAccessByUserEmail(email);
-    res.status(200).json(fileAccess);
+    const allUserFileAccesses = await getFileAccessByUserEmail(email);
+    res
+      .status(200)
+      .json(allUserFileAccesses.map((fileAccess) => fileAccess.fileId));
   } catch (error) {
     console.error('Error retrieving file access:', error);
     res.status(500).json({ error: 'Internal server error' });
