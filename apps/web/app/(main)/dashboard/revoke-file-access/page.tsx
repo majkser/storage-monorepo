@@ -21,7 +21,7 @@ import { File } from '@/app/types/fileInterface';
 export default function RevokeFileAccessPage() {
   const [email, setEmail] = useState('');
   const [userFiles, setUserFiles] = useState<File[]>([]);
-  const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{
     type: 'success' | 'error';
@@ -93,24 +93,24 @@ export default function RevokeFileAccessPage() {
     const files = await fetchUserCurrentFiles(formData.get('email') as string);
 
     setUserFiles(files);
+    setSelectedFiles([]);
   }
 
-  const handleFileToggle = (fileId: string) => {
+  const handleFileToggle = (file: File) => {
     setSelectedFiles((prev) =>
-      prev.includes(fileId)
-        ? prev.filter((id) => id !== fileId)
-        : [...prev, fileId]
+      prev.includes(file) ? prev.filter((f) => f !== file) : [...prev, file]
     );
   };
 
   const handleSelectAll = () => {
-    if (selectedFiles.length === files.length) {
+    if (selectedFiles.length === userFiles.length) {
       setSelectedFiles([]);
     } else {
-      setSelectedFiles(files.map((file) => file.id));
+      setSelectedFiles(userFiles.map((file) => file));
     }
   };
 
+  // TODO: implement actual logic of handle revoke function and devide the component into smaller ones
   const handleRevokeAccess = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -197,9 +197,9 @@ export default function RevokeFileAccessPage() {
                   size="sm"
                   onClick={handleSelectAll}
                 >
-                  {/* {selectedFiles.length === userFiles.length
+                  {selectedFiles.length === userFiles.length
                     ? 'Deselect All'
-                    : 'Select All'} */}
+                    : 'Select All'}
                 </Button>
               </div>
               <Card className="p-4">
@@ -208,8 +208,8 @@ export default function RevokeFileAccessPage() {
                     <div key={file.id} className="flex items-center space-x-3">
                       <Checkbox
                         id={file.id}
-                        checked={selectedFiles.includes(file.id)}
-                        onCheckedChange={() => handleFileToggle(file.id)}
+                        checked={selectedFiles.includes(file)}
+                        onCheckedChange={() => handleFileToggle(file)}
                       />
                       <label
                         htmlFor={file.id}
@@ -238,7 +238,7 @@ export default function RevokeFileAccessPage() {
                     <p className="font-medium text-sm">
                       Selected Files ({selectedFiles.length}):
                     </p>
-                    {/* {selectedFiles.map((file: File) => (
+                    {selectedFiles.map((file: File) => (
                       <div key={file.id} className="flex items-center gap-3">
                         <FileText className="h-6 w-6 text-muted-foreground" />
                         <div>
@@ -248,7 +248,7 @@ export default function RevokeFileAccessPage() {
                           </p>
                         </div>
                       </div>
-                    ))} */}
+                    ))}
                   </div>
                 </CardContent>
               </Card>
