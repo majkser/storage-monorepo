@@ -53,15 +53,23 @@ export async function deleteFileAccessController(
   req: Request,
   res: Response
 ): Promise<void> {
-  const { fileId, email } = req.body;
+  const { fileIds, email } = req.body;
 
-  if (!fileId || !email) {
-    res.status(400).json({ error: 'fileId and email are required' });
+  if (!fileIds || !email) {
+    res.status(400).json({ error: 'fileIds and email are required' });
     return;
   }
 
   try {
-    await deleteFileAccess({ fileId: fileId, email: email });
+    await Promise.all(
+      fileIds.map(async (fileId: string) => {
+        const existingAccess = await getFileAccessByUserEmail(email);
+        if (existingAccess.find((access) => access.fileId === fileId)) {
+          await deleteFileAccess({ fileId, email });
+        }
+      })
+    );
+
     res.status(204).send();
   } catch (error) {
     console.error('Error deleting file access:', error);

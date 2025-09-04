@@ -35,7 +35,7 @@ router.delete(
   '/delete-access',
   isAuthenticated,
   isAdmin,
-  body('fileId').notEmpty().isString().withMessage('fileId is required'),
+  body('fileIds').notEmpty().isArray().withMessage('fileIds array is required'),
   body('email').notEmpty().isString().withMessage('email is required'),
   validateRequest,
   userExistenceValidator,
