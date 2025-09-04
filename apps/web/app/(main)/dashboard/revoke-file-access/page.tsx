@@ -182,7 +182,9 @@ export default function RevokeFileAccessPage() {
                 className="w-full"
                 required
               />
-              <Button type="submit">Get user files</Button>
+              <Button type="submit" className="mt-2">
+                Get user files
+              </Button>
             </form>
           </div>
           <form onSubmit={handleRevokeAccess} className="space-y-6">
