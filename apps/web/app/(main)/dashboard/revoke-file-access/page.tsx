@@ -89,7 +89,7 @@ export default function RevokeFileAccessPage() {
     event.preventDefault();
 
     const formData = new FormData(event.target as HTMLFormElement);
-
+    setEmail(formData.get('email') as string);
     const files = await fetchUserCurrentFiles(formData.get('email') as string);
 
     setUserFiles(files);
@@ -110,7 +110,8 @@ export default function RevokeFileAccessPage() {
     }
   };
 
-  // TODO: implement actual logic of handle revoke function and devide the component into smaller ones
+  // TODO: somtimes app crashes here andn in the give access page - investigate (try to build first - remove dist with backend api - leave the uploads?)
+  // second TODO: devide this into smaller components - less important now - can be depolyed as it is
   const handleRevokeAccess = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -126,7 +127,24 @@ export default function RevokeFileAccessPage() {
     setMessage(null);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/file-access/delete-access`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            fileIds: selectedFiles.map((file) => file.id),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to revoke file access');
+      }
 
       const fileCount = selectedFiles.length;
       const fileText = fileCount === 1 ? 'file' : 'files';
@@ -144,6 +162,8 @@ export default function RevokeFileAccessPage() {
       });
     } finally {
       setIsLoading(false);
+      const updatedUserFiles = await fetchUserCurrentFiles(email);
+      setUserFiles(updatedUserFiles);
     }
   };
 
