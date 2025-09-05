@@ -53,7 +53,8 @@ export default function RevokeFileAccessPage() {
         })
       );
 
-      return files;
+      const validFiles = files.filter((file) => file !== null);
+      return validFiles;
     } catch (error) {
       console.error('Error fetching user files:', error);
       return [];
@@ -110,7 +111,6 @@ export default function RevokeFileAccessPage() {
     }
   };
 
-  // TODO: somtimes app crashes here andn in the give access page - investigate (try to build first - remove dist with backend api - leave the uploads?)
   // second TODO: devide this into smaller components - less important now - can be depolyed as it is
   const handleRevokeAccess = async (e: React.FormEvent) => {
     e.preventDefault();
