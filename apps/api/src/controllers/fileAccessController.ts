@@ -17,13 +17,15 @@ export async function createFileAccessController(
   }
 
   try {
-    fileIds.map(async (fileId: string) => {
-      //add check if the file access already exists
-      const existingAccess = await getFileAccessByUserEmail(email);
-      if (!existingAccess.find((access) => access.fileId === fileId)) {
-        await createFileAccess({ fileId: fileId, email: email });
-      }
-    });
+    await Promise.all(
+      fileIds.map(async (fileId: string) => {
+        //add check if the file access already exists
+        const existingAccess = await getFileAccessByUserEmail(email);
+        if (!existingAccess.find((access) => access.fileId === fileId)) {
+          await createFileAccess({ fileId: fileId, email: email });
+        }
+      })
+    );
 
     res.status(201).json({ message: 'File access created successfully' });
   } catch (error) {
