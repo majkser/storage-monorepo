@@ -1,6 +1,7 @@
 'use client';
 import { createContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { cookies } from 'next/headers';
 
 export interface User {
   id: string;
@@ -63,6 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
+            Cookie: cookies().toString(),
           },
         }
       );
