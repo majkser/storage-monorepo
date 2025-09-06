@@ -1,6 +1,6 @@
-"use client";
-import { createContext, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+'use client';
+import { createContext, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export interface User {
   id: string;
@@ -39,15 +39,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const handleSignOut = async () => {
     setLoadingLogOut(true);
 
-    router.push("/login");
+    router.push('/login');
     try {
       await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/logout`, {
-        method: "POST",
-        credentials: "include",
+        method: 'POST',
+        credentials: 'include',
       });
       setUser(null);
     } catch (error) {
-      console.log("Sign out error:", error);
+      console.log('Sign out error:', error);
     } finally {
       setTimeout(() => {
         setLoadingLogOut(false);
@@ -60,7 +60,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/user`,
         {
-          credentials: "include",
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
       );
       if (response.ok) {
