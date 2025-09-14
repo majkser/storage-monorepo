@@ -4,7 +4,7 @@ ARG NODE_VERSION=23.10.0
 FROM node:${NODE_VERSION}-alpine
 
 # Set working directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # Copy package files first for caching
 COPY package*.json ./
@@ -16,7 +16,7 @@ RUN npm ci
 COPY . .
 
 # Build TypeScript
-RUN npm run build
+RUN npx nx build api
 
 # Remove dev dependencies after build
 RUN npm prune --production
